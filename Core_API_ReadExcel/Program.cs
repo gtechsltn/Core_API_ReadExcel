@@ -1,5 +1,6 @@
 using ExcelDataReader;
 using Microsoft.Extensions.Hosting;
+using System.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,45 +36,50 @@ app.MapGet("/readexcel/{file}", async (HttpContext context, IWebHostEnvironment 
         return Results.NotFound($"File {file}.xlsx is not available");
     }
 
-    // 5. Read the Excel File
+
+    // 5. Register the Provider
+
     System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-    using var stream = new FileStream(fileName, FileMode.Open);
-    IExcelDataReader reader;
-    // 6. Reading from a OpenXml Excel file (2007 format; *.xlsx)
-    reader = ExcelReaderFactory.CreateOpenXmlReader(stream);
-    // 7. DataSet - The result of each spreadsheet will be created in the result.Tables
-    var result = reader.AsDataSet();
-    // 8. Close the data reader
-    reader.Close();
-    // 9. Get the first table
-    var table = result.Tables[0];
-
-    var headerRow = table.Rows[0];
-
-    // Read all columns for Header row
-
-    context.Response.ContentType = "application/json";
-    await context.Response.WriteAsJsonAsync(table);
-
-
-    /*
-      var files = Directory.GetFiles(dirPath);
-    var fileNames = new List<string>();
-
-    foreach (var filePath in files)
+    // 6. Define the DataSet
+    DataSet dataSet;
+    // 7. Read the Excel File
+    using (var stream =  File.OpenRead(fileName))
     {
-        fileNames.Add(Path.GetFileName(filePath));
+        using (var reader = ExcelReaderFactory.CreateReader(stream))
+        {
+            var conf = new ExcelDataSetConfiguration
+            {
+                ConfigureDataTable = _ => new ExcelDataTableConfiguration
+                {
+                    // 8. Use the first row as the header
+                    UseHeaderRow = true
+                }
+            };
+            // 9. Convert theworksheet to DataSet
+            dataSet = reader.AsDataSet(conf);
+        }
     }
 
-    context.Response.ContentType = "application/json";
-    await context.Response.WriteAsJsonAsync(fileNames);
-     */
+    var dataResult = new List<Dictionary<string, object>>();
+   
+    // 10. Loop through the tables
+    foreach (DataTable table in dataSet.Tables)
+    {
+        // 11. Loop through the rows
+        foreach (DataRow row in table.Rows)
+        {
+            var rowDataDict = new Dictionary<string, object>();
+            foreach (DataColumn col in table.Columns)
+            {
+                //12 Add the column name and value to the dictionary
+                rowDataDict[col.ColumnName] = row[col];
+            }
+            // 13 Add the dictionary to the JSON Result
+            dataResult.Add(rowDataDict);
+        }
+    }
 
-
-
-
-
-     return Results.Ok();
+    return Results.Ok(dataResult);
 });
 
 app.Run();

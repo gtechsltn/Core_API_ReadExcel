@@ -13,4 +13,12 @@
     <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EditorConfigFiles Remove="D:\Articles\Core_API_ReadExcel\Core_API_ReadExcel\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="D:\Articles\Core_API_ReadExcel\Core_API_ReadExcel\.editorconfig" />
+  </ItemGroup>
+
 </Project>
