@@ -45,6 +45,7 @@ app.MapGet("/readexcel/{file}", async (HttpContext context, IWebHostEnvironment 
     // 7. Read the Excel File on the server
     using (var stream =  File.OpenRead(fileName))
     {
+        // Create a reader
         using (var reader = ExcelReaderFactory.CreateReader(stream))
         {
             var conf = new ExcelDataSetConfiguration
