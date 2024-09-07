@@ -42,7 +42,7 @@ app.MapGet("/readexcel/{file}", async (HttpContext context, IWebHostEnvironment 
     System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
     // 6. Define the DataSet
     DataSet dataSet;
-    // 7. Read the Excel File
+    // 7. Read the Excel File on the server
     using (var stream =  File.OpenRead(fileName))
     {
         using (var reader = ExcelReaderFactory.CreateReader(stream))
