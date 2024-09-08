@@ -56,7 +56,7 @@ app.MapGet("/readexcel/{file}", async (HttpContext context, IWebHostEnvironment 
                     UseHeaderRow = true
                 }
             };
-            // 9. Convert theworksheet to DataSet
+            // 9. Convert the worksheet to DataSet
             dataSet = reader.AsDataSet(conf);
         }
     }
